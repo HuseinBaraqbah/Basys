@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Basys - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-glass">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-cube me-2"></i>BASYS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/madeby">Made By</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="full-screen">
+        <div class="basys-card text-center pt-5 pb-5">
+            
+            <div id="clock" class="clock-widget">00:00:00</div>
+            <p id="dateText" class="text-muted mb-4 small">Memuat Tanggal...</p>
+
+            <div class="avatar-lg mb-3">
+                <span id="initials">U</span>
+            </div>
+
+            <h5 id="greeting" class="text-secondary mb-1">Halo,</h5>
+            <h2 id="fullName" class="fw-bold mb-1 text-primary">Memuat...</h2>
+            
+            <div class="badge bg-light text-dark border px-3 py-2 mt-2 mb-4 rounded-pill">
+                NIM: <span id="nimDisplay">-</span>
+            </div>
+
+            <div class="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-center mb-4 mx-3">
+                <i class="fas fa-check-circle me-2"></i> 
+                <span>Status: <b>Hadir / Masuk</b></span>
+            </div>
+
+            <div class="px-4">
+                <button onclick="logout()" class="btn btn-danger w-100 py-2 rounded-3 fw-bold shadow-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i> Log Out
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const userData = JSON.parse(localStorage.getItem('basysUser'));
+        
+        if (!userData) {
+            alert("Sesi habis atau Anda belum login.");
+            window.location.href = '/attendance_page';
+        } else {
+            const parts = userData.name.split('_'); 
+            let nim = parts[0] || "-";
+            let name = parts.slice(1).join(' ') || userData.name;
+            
+            if(parts.length < 2) { 
+                nim = "Tidak diketahui"; 
+                name = userData.name; 
+            }
+
+            document.getElementById('fullName').innerText = name;
+            document.getElementById('nimDisplay').innerText = nim;
+            
+            const firstLetter = name.charAt(0).toUpperCase();
+            document.getElementById('initials').innerText = firstLetter;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateText').innerText = now.toLocaleDateString('id-ID', options);
+            
+            const hour = now.getHours();
+            let greet = "Halo";
+            if (hour >= 4 && hour < 11) greet = "Selamat Pagi";
+            else if (hour >= 11 && hour < 15) greet = "Selamat Siang";
+            else if (hour >= 15 && hour < 18) greet = "Selamat Sore";
+            else greet = "Selamat Malam";
+            
+            document.getElementById('greeting').innerText = greet + ",";
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); 
+
+        function logout() {
+            localStorage.removeItem('basysUser');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

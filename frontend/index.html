@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basys - Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-glass">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cube me-2"></i>BASYS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/madeby">Made By</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero" class="full-screen text-center flex-column">
+        <div class="hero-content">
+            <h1 class="hero-title">WELCOME TO <br> BASYS</h1>
+            <p class="text-white fs-4 mb-5" style="opacity: 0.9;">Basic Attendance System Project</p>
+            <a href="#system" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow">
+                Try System
+            </a>
+        </div>
+        
+        <a href="#system" class="scroll-indicator text-center">
+            <small class="d-block mb-1">Scroll Down</small>
+            <i class="fas fa-chevron-down fa-2x"></i>
+        </a>
+    </section>
+
+    <section id="system" class="full-screen">
+        <div class="basys-card text-center">
+            <div class="mb-4">
+                <i class="fas fa-fingerprint fa-4x text-primary mb-3"></i>
+                <h2 class="fw-bold">Mulai Absensi</h2>
+                <p class="text-muted">Silakan pilih menu di bawah ini</p>
+            </div>
+
+            <div class="d-grid gap-3">
+                <a href="/attendance_page" class="btn btn-basys btn-lg">
+                    <i class="fas fa-camera me-2"></i> Absensi Masuk
+                </a>
+                
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="/register_page" class="btn btn-basys btn-basys-outline">
+                            <i class="fas fa-user-plus me-1"></i> Daftar
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="/admin_page" class="btn btn-basys btn-dark" style="background: #343a40;">
+                            <i class="fas fa-database me-1"></i> Admin
+                        </a>
+                    </div>
+                </div>
+                
+                <a href="/register_upload_page" class="text-decoration-none text-muted small mt-2">
+                    Daftar via Upload File
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

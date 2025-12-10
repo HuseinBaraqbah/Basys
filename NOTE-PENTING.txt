@@ -1,0 +1,22 @@
+Untuk menjalankan host dengan ngrok lakukan hal berikut
+1. Masuk ke backend dengan menjalankan (cd backend) di terminal
+2. Masuk ke environment dengan menjalankan (.\venv\Scripts\activate)
+3. Patikan install requirements nya 
+-(pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision)
+-(pip install -r requirements.txt)
+4. Jalankan app.py (python app.py) di terminal
+5. Untuk mematikan environment cukup jalankan (deactivate) di terminal
+6. Buka powershell/terminal baru lalu jalankan (.\ngrok http 5000)
+7. Copy link yang diberikan ngrok
+
+Remember! menggunakan ngrok harus memerlukan authkey di web dan perlu 
+dijalankan lewat cmd terlebih dahulu
+
+Untuk menjalankan lewat local cukup lakukan hal berikut
+1. Masuk ke backend dengan menjalankan (cd backend) di terminal
+2. Masuk ke environment dengan menjalankan (.\venv\Scripts\activate)
+3. Patikan install requirements nya 
+-(pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision)
+-(pip install -r requirements.txt)
+4. Jalankan app.py (python app.py) di terminal
+5. Untuk mematikan environment cukup jalankan (deactivate) di terminal

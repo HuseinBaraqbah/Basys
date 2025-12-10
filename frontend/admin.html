@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basys - Admin Log</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .table-responsive { max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-glass">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-cube me-2"></i>BASYS</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="full-screen">
+        <div class="basys-card admin-card text-center">
+            <h2 class="fw-bold mb-4">Log Kehadiran</h2>
+            
+            <div class="table-responsive rounded shadow-sm border">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-dark sticky-top">
+                        <tr><th>Waktu</th><th>NIM</th><th>Nama</th><th>Score</th></tr>
+                    </thead>
+                    <tbody id="tb"></tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <a href="/" class="btn btn-basys-outline">Kembali ke Menu</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('/attendance_log').then(r=>r.json()).then(d => {
+            const tb = document.getElementById('tb');
+            if(d.logs.length === 0) {
+                tb.innerHTML = '<tr><td colspan="4" class="text-muted py-3">Belum ada data absensi.</td></tr>';
+                return;
+            }
+            d.logs.reverse().forEach(l => {
+                const p = l.name.split('_');
+                const nim = p[0] || "-";
+                const nama = p.slice(1).join(' ') || l.name;
+                tb.innerHTML += `<tr><td>${l.timestamp}</td><td>${nim}</td><td>${nama}</td><td>${parseFloat(l.score).toFixed(4)}</td></tr>`;
+            });
+        });
+    </script>
+</body>
+</html>
