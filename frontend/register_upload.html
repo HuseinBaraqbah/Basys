@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Basys - Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-glass">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-cube me-2"></i>BASYS
+            </a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="full-screen">
+        <div class="basys-card">
+            
+            <div class="text-center mb-4">
+                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                <h3 class="fw-bold">Upload Foto</h3>
+                <p class="text-muted small">Registrasi wajah menggunakan file foto.</p>
+            </div>
+
+            <form id="uploadForm">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Nomor Induk (NIM)</label>
+                    <input type="text" name="nim" id="nimInput" class="form-control form-control-lg" placeholder="Contoh: 123456" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Nama Lengkap</label>
+                    <input type="text" name="name" class="form-control form-control-lg" placeholder="Nama Anda" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">File Foto Wajah</label>
+                    <input type="file" name="photo" class="form-control" accept="image/*" required>
+                    <div class="form-text small text-end fst-italic">Format: JPG/PNG. Pastikan wajah terlihat jelas.</div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-basys btn-lg">
+                    <i class="fas fa-paper-plane me-2"></i> Upload & Daftar
+                </button>
+            </form>
+
+            <a href="/" class="d-block text-center mt-4 text-decoration-none text-muted small">
+                Kembali ke Menu
+            </a>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none;">
+                <div class="modal-header bg-warning text-dark border-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Data Sudah Ada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-1">NIM <b id="modalNim"></b> sudah terdaftar atas nama:</p>
+                    <h4 class="text-primary fw-bold" id="modalOldName">...</h4>
+                    <p class="text-muted small mt-3">Apakah Anda ingin menimpa data lama dengan foto yang baru ini?</p>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-4">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batalkan</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4" onclick="finalUpload()">Ya, Update Foto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+
+            const nim = document.getElementById('nimInput').value.trim();
+            if(!nim) return;
+
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengecek...';
+            submitBtn.disabled = true;
+
+            try {
+                const res = await fetch('/check_user', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ nim: nim })
+                });
+                const data = await res.json();
+
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+
+                if (data.exists) {
+                    document.getElementById('modalNim').innerText = nim;
+                    document.getElementById('modalOldName').innerText = data.old_name;
+                    
+                    const myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                    myModal.show();
+                } else {
+                    finalUpload();
+                }
+
+            } catch (err) {
+                alert("Gagal koneksi ke server.");
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        };
+
+        async function finalUpload() {
+            const modalEl = document.getElementById('confirmModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengupload...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(form);
+                
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    alert("Berhasil: " + data.message);
+                    window.location.href = "/";
+                } else {
+                    alert("Gagal: " + data.message);
+                }
+            } catch (err) {
+                alert("Terjadi kesalahan sistem.");
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

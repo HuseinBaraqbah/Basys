@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basys - Daftar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -35,7 +35,7 @@
                 <div class="scan-container mb-3">
                     <video id="video" width="100%" autoplay style="border-radius: 8px;"></video>
                 </div>
-                <button class="btn btn-basys" onclick="daftar()">Ambil Foto & Daftar</button>
+                <button class="btn btn-basys" onclick="prosesDaftar()">Ambil Foto & Daftar</button>
             </div>
 
             <div class="text-center mt-3">
@@ -47,31 +47,91 @@
         </div>
     </div>
 
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none;">
+                <div class="modal-header bg-warning text-dark border-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Data Sudah Ada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-1">NIM <b id="modalNim"></b> sudah terdaftar atas nama:</p>
+                    <h4 class="text-primary fw-bold" id="modalOldName">...</h4>
+                    <p class="text-muted small mt-3">Apakah Anda ingin menimpa data lama dengan foto wajah yang baru ini?</p>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-4">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batalkan</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4" onclick="kirimDataAkhir()">Ya, Update Foto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         const v = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        let tempImage = null;
+
         navigator.mediaDevices.getUserMedia({video:true}).then(s => v.srcObject = s);
 
-        function daftar() {
-            const nim = document.getElementById('nim').value;
-            const nama = document.getElementById('nama').value;
+        async function prosesDaftar() {
+            const nim = document.getElementById('nim').value.trim();
+            const nama = document.getElementById('nama').value.trim();
+
             if(!nim || !nama) return alert("Isi NIM dan Nama!");
 
-            const c = document.getElementById('canvas');
-            c.width = v.videoWidth; c.height = v.videoHeight;
-            c.getContext('2d').drawImage(v,0,0);
-            
-            const img64 = c.toDataURL('image/jpeg');
-            document.getElementById('prev').src = img64;
+            canvas.width = v.videoWidth; 
+            canvas.height = v.videoHeight;
+            canvas.getContext('2d').drawImage(v,0,0);
+            tempImage = canvas.toDataURL('image/jpeg');
+
+            document.getElementById('prev').src = tempImage;
             document.getElementById('prev').style.display = 'block';
+
+            try {
+                const res = await fetch('/check_user', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ nim: nim })
+                });
+                const data = await res.json();
+
+                if (data.exists) {
+                    document.getElementById('modalNim').innerText = nim;
+                    document.getElementById('modalOldName').innerText = data.old_name;
+                    
+                    const myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                    myModal.show();
+                } else {
+                    kirimDataAkhir();
+                }
+
+            } catch (err) {
+                alert("Gagal koneksi ke server.");
+            }
+        }
+
+        function kirimDataAkhir() {
+            const nim = document.getElementById('nim').value.trim();
+            const nama = document.getElementById('nama').value.trim();
+
+            const modalEl = document.getElementById('confirmModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
 
             fetch('/register_camera', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({nim, name: nama, image: img64})
-            }).then(r=>r.json()).then(d => {
+                body: JSON.stringify({nim, name: nama, image: tempImage})
+            })
+            .then(r => r.json())
+            .then(d => {
                 alert(d.message);
                 if(d.success) window.location.href = "/";
-            });
+            })
+            .catch(err => alert("Terjadi kesalahan saat upload."));
         }
     </script>
 </body>

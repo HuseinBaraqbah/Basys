@@ -23,6 +23,10 @@ def root_index():
 def css_file():
     return send_from_directory(app.static_folder, "style.css")
 
+@app.route("/madeby")
+def madeby_page():
+    return send_from_directory(app.static_folder, "madeby.html")
+
 @app.route("/attendance_page")
 def attendance_page():
     return send_from_directory(app.static_folder, "attendance.html")
@@ -89,9 +93,28 @@ def attendance_log():
             logs = list(csv.DictReader(f))
     return jsonify({"logs": logs})
 
-@app.route("/madeby")
-def madeby_page():
-    return send_from_directory(app.static_folder, "madeby.html")
+@app.route("/check_user", methods=["POST"])
+def check_user_exists():
+    data = request.get_json()
+    if not data or "nim" not in data:
+        return jsonify({"exists": False}), 400
+        
+    target_nim = data["nim"].strip()
+    faces_dir = "faces" 
+    
+    if os.path.exists(faces_dir):
+        for fname in os.listdir(faces_dir):
+            if fname.endswith(".npy"):
+                parts = fname.split('_')
+                existing_nim = parts[0]
+                if existing_nim == target_nim:
+                    existing_name = parts[1].replace(".npy", "") if len(parts) > 1 else "User"
+                    return jsonify({
+                        "exists": True, 
+                        "old_name": existing_name
+                    })
+                    
+    return jsonify({"exists": False})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
